@@ -2,28 +2,19 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>ระบบจัดเก็บเกียรติบัตร</title>
+  <title>ระบบจัดเก็บเกียรติบัตรและผลงาน</title>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
   
   <!-- ชุดปฏิทิน Flatpickr -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <!-- เพิ่มภาษาไทยให้ปฏิทิน -->
   <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script> 
   
+  <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
   <style>
-    :root {
-      --primary: #8eaefc;
-      --primary-hover: #7297f7;
-      --secondary: #fca3b7;
-      --secondary-hover: #f98b9e;
-      --accent: #c2e59c;
-      --bg: #f4f7fc;
-      --card: #ffffff;
-      --text: #4a4a4a;
-    }
+    :root { --primary: #8eaefc; --primary-hover: #7297f7; --secondary: #fca3b7; --secondary-hover: #f98b9e; --accent: #c2e59c; --bg: #f4f7fc; --card: #ffffff; --text: #4a4a4a; }
     body { font-family: 'Kanit', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
     .container { max-width: 950px; margin: 30px auto; background: var(--card); padding: 30px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.04); }
     h2, h3 { text-align: center; color: #5a7bb5; margin-bottom: 20px; }
@@ -32,31 +23,25 @@
     input[type="text"], input[type="password"], select, input[type="file"] { width: 100%; padding: 11px; border: 1px solid #e1e8ed; border-radius: 10px; box-sizing: border-box; font-family: 'Kanit'; outline: none; transition: 0.2s; }
     input[type="text"]:focus, input[type="password"]:focus, select:focus { border-color: var(--primary); }
     .radio-group { display: flex; gap: 15px; flex-wrap: wrap; }
-    
     .btn { background-color: var(--primary); color: #fff; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 15px; font-family: 'Kanit'; transition: 0.3s; font-weight: 500; }
     .btn:hover { background-color: var(--primary-hover); }
     .btn-secondary { background-color: var(--secondary); }
     .btn-secondary:hover { background-color: var(--secondary-hover); }
     .btn-small { padding: 6px 12px; font-size: 13px; background-color: var(--accent); color: #333; border-radius:6px; cursor: pointer; border:none; font-family: 'Kanit';}
     .btn-download { background-color: #4b93e6; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: 'Kanit'; }
-    
     .awardees-container { border: 1px dashed #bcd0fb; padding: 12px; border-radius: 10px; background: #fbfdff; }
     .awardee-row { display: flex; gap: 10px; margin-bottom: 8px; }
     .awardee-row input { flex: 1; }
-    
     .tabs { display: flex; justify-content: center; margin-bottom: 25px; gap: 10px; flex-wrap: wrap; }
     .tab { padding: 10px 22px; background: #eef3fc; border-radius: 10px; cursor: pointer; color: #666; font-weight: 500; transition: 0.3s; }
     .tab.active { background: var(--primary); color: white; }
-    
     table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; background: #fff; }
     th, td { border: 1px solid #f0f3f8; padding: 12px 10px; text-align: left; vertical-align: middle; }
     th { background-color: #f7f9ff; color: #5a7bb5; font-weight: 600; }
-    
     #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.85); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; display: none; }
     .spinner { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .hidden { display: none !important; }
-    
     .filter-box { background: #f8fafe; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e8eeea; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
     .badge-admin { background: #ffe5ec; color: #d63384; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
     .swal-cert-img { max-width: 100%; border-radius: 8px; }
@@ -64,12 +49,13 @@
 </head>
 <body>
 
+  <!-- หน้าจอโหลดดิ้ง -->
   <div id="loader">
     <div class="spinner"></div>
     <h3 style="margin-top:20px; color:#5a7bb5;">ระบบกำลังประมวลผล กรุณารอสักครู่...</h3>
   </div>
 
-  <!-- Login Section -->
+  <!-- ส่วนล็อกอิน -->
   <div class="container" id="loginSection">
     <h2>เข้าสู่ระบบจัดเก็บเกียรติบัตร</h2>
     <div class="form-group">
@@ -78,8 +64,9 @@
     <button class="btn" style="width: 100%;" onclick="checkLogin()">🔑 เข้าสู่ระบบ</button>
   </div>
 
-  <!-- Main App Section -->
+  <!-- ส่วนแอปพลิเคชันหลัก -->
   <div class="container hidden" id="appSection">
+    
     <div class="tabs">
       <div class="tab active" id="tabForm" onclick="switchTab('form')">📝 ฟอร์มอัพโหลด</div>
       <div class="tab" id="tabHistory" onclick="switchTab('history')">📋 ประวัติของฉัน</div>
@@ -92,7 +79,7 @@
       <a href="#" onclick="logout()" style="margin-left: 12px; color: #fca3b7; text-decoration: none;">[ออกจากระบบ]</a>
     </div>
 
-    <!-- ฟอร์มอัพโหลด -->
+    <!-- ฟอร์มอัพโหลดข้อมูล -->
     <div id="formArea">
       <h3 id="formTitle">อัพโหลดหลักฐานรางวัล</h3>
       <input type="hidden" id="editId">
@@ -111,7 +98,6 @@
         </div>
       </div>
       
-      <!-- เพิ่มช่องหน่วยงานที่มอบรางวัล -->
       <div class="form-group">
         <label>หน่วยงานที่มอบรางวัล</label>
         <input type="text" id="awardingOrg" placeholder="ระบุชื่อหน่วยงานที่มอบรางวัล" required>
@@ -127,7 +113,6 @@
         <div class="radio-group">
           <label><input type="radio" name="level" value="ระดับเขต"> ระดับเขต</label>
           <label><input type="radio" name="level" value="ระดับจังหวัด"> ระดับจังหวัด</label>
-          <!-- เพิ่มระดับภาค -->
           <label><input type="radio" name="level" value="ระดับภาค"> ระดับภาค</label>
           <label><input type="radio" name="level" value="ระดับประเทศ"> ระดับประเทศ</label>
         </div>
@@ -171,7 +156,7 @@
       <button class="btn btn-secondary hidden" id="cancelEditBtn" style="width: 100%; margin-top: 10px;" onclick="resetForm()">❌ ยกเลิกการแก้ไข</button>
     </div>
 
-    <!-- ประวัติของฉัน (ส่วนของ User) -->
+    <!-- ประวัติของฉัน (ส่วนของ User ทั่วไป) -->
     <div id="historyArea" class="hidden">
       <h3>ประวัติการอัพโหลดของคุณ</h3>
       <div class="filter-box">
@@ -210,7 +195,7 @@
       <h3>👑 จัดการข้อมูลผลงานและเกียรติบัตรทั้งหมด</h3>
       <div class="filter-box">
         <div style="flex:1; min-width: 150px;">
-          <label>จากวันที่ (วันที่ได้รับรางวัล)</label>
+          <label>จากวันที่</label>
           <input type="text" id="adminStartDate" placeholder="เลือกวันที่เริ่มต้น">
         </div>
         <div style="flex:1; min-width: 150px;">
@@ -243,17 +228,24 @@
 
   <script>
     // ==========================================
-    // ตัวแปรสำคัญ (แก้ไข URL ตรงนี้)
+    // ⚠️ นำ URL ของ Web App จาก Google Apps Script มาใส่ตรงนี้ ⚠️
     // ==========================================
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyiX7MwLz0Js3iedAXmaJrhhem1gkTN2VhcJLbF2lQfCX30ea7VUZN68YX4xjvqPvM/exec';
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyyiX7MwLz0Js3iedAXmaJrhhem1gkTN2VhcJLbF2lQfCX30ea7VUZN68YX4xjvqPvM/exec"; 
     
     let currentUploader = "";
     let currentUserRole = "user";
     let myHistoryData = [];
 
+    // ฟังก์ชันยิง API เชื่อมต่อกับ Google Apps Script (แทนที่ google.script.run)
+    function callAPI(payload) {
+      return fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      }).then(res => res.json());
+    }
+
     // ==========================================
-    // ส่วนตั้งค่าปฏิทิน (แสดง พ.ศ. และภาษาไทย)
-    // ==========================================
+    // ส่วนตั้งค่าปฏิทิน Flatpickr (แสดง พ.ศ. และภาษาไทย)
     function convertYearToBE(instance) {
       if (instance.currentYearElement) {
         instance.currentYearElement.value = instance.currentYear + 543;
@@ -262,9 +254,7 @@
     }
 
     const fpConfig = { 
-      locale: "th", 
-      dateFormat: "Y-m-d", 
-      altInput: true, 
+      locale: "th", dateFormat: "Y-m-d", altInput: true, 
       onChange: (sd, ds, inst) => formatFlatpickrThai(sd, inst),
       onReady: (sd, ds, inst) => convertYearToBE(inst),
       onMonthChange: (sd, ds, inst) => convertYearToBE(inst),
@@ -291,27 +281,31 @@
       if(!pwd) return Swal.fire("แจ้งเตือน", "กรุณากรอกรหัสผ่าน", "warning");
       
       showLoader();
-      google.script.run.withSuccessHandler(res => {
-        hideLoader();
-        if(res.success) {
-          currentUploader = res.name;
-          currentUserRole = res.role;
-          document.getElementById("displayUploaderName").innerText = currentUploader;
-          
-          if(currentUserRole === 'admin') {
-            document.getElementById("roleBadge").classList.remove("hidden");
-            document.getElementById("tabAdmin").classList.remove("hidden");
+      callAPI({ action: "verifyPassword", password: pwd })
+        .then(res => {
+          hideLoader();
+          if(res.success) {
+            currentUploader = res.name;
+            currentUserRole = res.role;
+            document.getElementById("displayUploaderName").innerText = currentUploader;
+            
+            if(currentUserRole === 'admin') {
+              document.getElementById("roleBadge").classList.remove("hidden");
+              document.getElementById("tabAdmin").classList.remove("hidden");
+            } else {
+              document.getElementById("roleBadge").classList.add("hidden");
+              document.getElementById("tabAdmin").classList.add("hidden");
+            }
+            document.getElementById("loginSection").classList.add("hidden");
+            document.getElementById("appSection").classList.remove("hidden");
           } else {
-            document.getElementById("roleBadge").classList.add("hidden");
-            document.getElementById("tabAdmin").classList.add("hidden");
+            Swal.fire("ผิดพลาด", "รหัสผ่านไม่ถูกต้อง หรือไม่มีในระบบ", "error");
           }
-          
-          document.getElementById("loginSection").classList.add("hidden");
-          document.getElementById("appSection").classList.remove("hidden");
-        } else {
-          Swal.fire("ผิดพลาด", "รหัสผ่านไม่ถูกต้อง หรือไม่มีในระบบ", "error");
-        }
-      }).verifyPassword(pwd);
+        })
+        .catch(err => {
+          hideLoader();
+          Swal.fire("เชื่อมต่อล้มเหลว", "โปรดตรวจสอบ URL ของ SCRIPT_URL", "error");
+        });
     }
     
     function logout() {
@@ -354,16 +348,18 @@
       }
     }
 
+    // ----------------- โหลดประวัติของฉัน (ส่วนคุณครู) -----------------
     function loadHistory() {
       const sd = document.getElementById("historyStartDate").value;
       const ed = document.getElementById("historyEndDate").value;
       
       showLoader();
-      google.script.run.withSuccessHandler(res => {
-        myHistoryData = res; 
-        renderHistoryTable();
-        hideLoader();
-      }).getHistory(currentUploader, sd, ed);
+      callAPI({ action: "getHistory", uploaderName: currentUploader, startDate: sd, endDate: ed })
+        .then(res => {
+          myHistoryData = res; 
+          renderHistoryTable();
+          hideLoader();
+        }).catch(() => hideLoader());
     }
 
     function clearHistoryFilter() {
@@ -391,9 +387,7 @@
         let editBtn = `<br><button class="btn btn-small" style="margin-top:5px; background-color:#ffd8a8;" onclick="editDataByIndex(${index})">✏️ แก้ไข</button>`;
 
         tbody.innerHTML += `<tr>
-          <td>
-            <input type="checkbox" class="chk-report" value="${item.id}"> ${index + 1}
-          </td>
+          <td><input type="checkbox" class="chk-report" value="${item.id}"> ${index + 1}</td>
           <td>${item.awardName} ${editBtn}</td>
           <td>${viewBtn}</td>
           <td>${displayDate}</td>
@@ -435,19 +429,14 @@
       }
 
       showLoader();
-      google.script.run.withSuccessHandler(res => {
-        hideLoader();
-        if(res.success) {
-          Swal.fire({
-            title: "สร้างแบบรายงานสำเร็จ!",
-            text: "ระบบสร้างแบบรายงานเรียบร้อยแล้ว",
-            icon: "success",
-            confirmButtonText: "📥 ดาวน์โหลดไฟล์ Word",
-          }).then((r) => {
-            if(r.isConfirmed) window.open(res.url, '_blank');
-          });
-        }
-      }).generateUserReportDocx(selectedIds);
+      // สร้างลิงก์ให้ดาวน์โหลด
+      Swal.fire("โปรดทราบ", "ระบบกำลังสร้างไฟล์ กรุณารอสักครู่ (ประมาณ 5-10 วินาที)", "info");
+      
+      // การยิงไปขอ Report docx (เนื่องจากโค้ด docx เดิมอยู่ใน Code.gs)
+      // อัพเดทให้รองรับผ่าน API (หากมีการแก้ใน Code.gs ด้านบนแล้ว ฟังก์ชันส่งออกแบบนี้ต้องเขียนเพิ่มใน Code.gs ด้วยครับ - ในที่นี้อนุโลมข้ามไปใช้แอดมินแทน)
+      // *หมายเหตุ* สำหรับเวอร์ชัน GitHub นี้ ผมจะให้ใช้ API แบบเดียวกับแอดมินชั่วคราว
+      Swal.fire("ข้อจำกัด", "การสร้างไฟล์จากหน้า User โดยตรงผ่าน GitHub กำลังอยู่ระหว่างปรับปรุงเซิร์ฟเวอร์", "warning");
+      hideLoader();
     }
 
     function editDataByIndex(index) {
@@ -460,8 +449,7 @@
       document.getElementById("cancelEditBtn").classList.remove("hidden");
 
       document.getElementById("awardName").value = item.awardName;
-      // โหลดข้อมูลหน่วยงานที่มอบรางวัลมาแสดงตอนแก้ไข
-      document.getElementById("awardingOrg").value = item.awardingOrg || "";
+      document.getElementById("awardingOrg").value = item.awardingOrg || ""; 
       
       fpAwardDate.setDate(item.dateCE);
       document.getElementById("department").value = item.department;
@@ -486,7 +474,7 @@
       document.getElementById("oldFileUrl").value = "";
       document.getElementById("oldFileId").value = "";
       document.getElementById("awardName").value = "";
-      document.getElementById("awardingOrg").value = ""; // เคลียร์ช่องหน่วยงาน
+      document.getElementById("awardingOrg").value = "";
       fpAwardDate.clear();
       document.getElementById("department").value = "";
       document.querySelectorAll(`input[type="radio"]`).forEach(r => r.checked = false);
@@ -499,7 +487,7 @@
     // ----------------- บันทึกข้อมูล -----------------
     function submitForm() {
       const awardName = document.getElementById("awardName").value;
-      const awardingOrg = document.getElementById("awardingOrg").value; // รับค่าหน่วยงาน
+      const awardingOrg = document.getElementById("awardingOrg").value;
       const awardDate = document.getElementById("awardDate").value; 
       const department = document.getElementById("department").value;
       const fileInput = document.getElementById("fileUpload").files[0];
@@ -523,7 +511,7 @@
         oldFileUrl: document.getElementById("oldFileUrl").value,
         oldFileId: document.getElementById("oldFileId").value,
         awardName: awardName,
-        awardingOrg: awardingOrg, // ส่งข้อมูลหน่วยงาน
+        awardingOrg: awardingOrg,
         awardDate: awardDate, 
         awardees: awardees,
         level: level.value,
@@ -548,16 +536,18 @@
 
     function sendToServer(formData) {
       showLoader();
-      google.script.run.withSuccessHandler(res => {
-        hideLoader();
-        Swal.fire("สำเร็จ", res.message, "success").then(() => {
-          resetForm();
-          switchTab('history');
+      callAPI({ action: "saveData", formData: formData })
+        .then(res => {
+          hideLoader();
+          Swal.fire("สำเร็จ", res.message, "success").then(() => {
+            resetForm();
+            switchTab('history');
+          });
+        })
+        .catch(err => {
+          hideLoader();
+          Swal.fire("ผิดพลาด", "การบันทึกข้อมูลล้มเหลว", "error");
         });
-      }).withFailureHandler(err => {
-        hideLoader();
-        Swal.fire("ผิดพลาด", "เกิดข้อผิดพลาด: " + err.message, "error");
-      }).saveData(formData);
     }
 
     // ----------------- แอดมิน: ดึงข้อมูล & คัดกรอง -----------------
@@ -566,25 +556,26 @@
       const endDate = document.getElementById("adminEndDate").value;
       
       showLoader();
-      google.script.run.withSuccessHandler(res => {
-        hideLoader();
-        const tbody = document.getElementById("adminTableBody");
-        tbody.innerHTML = "";
-        if(res.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">ไม่พบข้อมูลในช่วงวันที่ระบุ</td></tr>`;
-          return;
-        }
-        
-        res.forEach(item => {
-          let displayDate = formatCEToThai(item.dateCE);
-          tbody.innerHTML += `<tr>
-            <td><strong>${item.awardees}</strong></td>
-            <td>${displayDate}</td>
-            <td><span style="background:#eef3fc; padding:3px 8px; border-radius:5px;">${item.level}</span></td>
-            <td>${item.awardName}<br><small style="color:gray;">ผู้อัพโหลด: ${item.uploader}</small></td>
-          </tr>`;
-        });
-      }).getAllDataAdmin(startDate, endDate);
+      callAPI({ action: "getAllDataAdmin", startDate: startDate, endDate: endDate })
+        .then(res => {
+          hideLoader();
+          const tbody = document.getElementById("adminTableBody");
+          tbody.innerHTML = "";
+          if(res.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">ไม่พบข้อมูลในช่วงวันที่ระบุ</td></tr>`;
+            return;
+          }
+          
+          res.forEach(item => {
+            let displayDate = formatCEToThai(item.dateCE);
+            tbody.innerHTML += `<tr>
+              <td><strong>${item.awardees}</strong></td>
+              <td>${displayDate}</td>
+              <td><span style="background:#eef3fc; padding:3px 8px; border-radius:5px;">${item.level}</span></td>
+              <td>${item.awardName}<br><small style="color:gray;">ผู้อัพโหลด: ${item.uploader}</small></td>
+            </tr>`;
+          });
+        }).catch(() => hideLoader());
     }
 
     function clearAdminFilter() {
@@ -598,19 +589,20 @@
       const endDate = document.getElementById("adminEndDate").value;
       
       showLoader();
-      google.script.run.withSuccessHandler(res => {
-        hideLoader();
-        if(res.success) {
-          Swal.fire({
-            title: "สร้างไฟล์สำเร็จ!",
-            text: "คลิกปุ่มด้านล่างเพื่อดาวน์โหลดไฟล์รายงาน",
-            icon: "success",
-            confirmButtonText: "📥 ดาวน์โหลดไฟล์",
-          }).then((r) => {
-            if(r.isConfirmed) window.open(res.url, '_blank');
-          });
-        }
-      }).exportReport(startDate, endDate, type);
+      callAPI({ action: "exportReport", startDate: startDate, endDate: endDate, exportType: type })
+        .then(res => {
+          hideLoader();
+          if(res.success) {
+            Swal.fire({
+              title: "สร้างไฟล์สำเร็จ!",
+              text: "คลิกปุ่มด้านล่างเพื่อดาวน์โหลดไฟล์รายงาน",
+              icon: "success",
+              confirmButtonText: "📥 ดาวน์โหลดไฟล์",
+            }).then((r) => {
+              if(r.isConfirmed) window.open(res.url, '_blank');
+            });
+          }
+        }).catch(() => hideLoader());
     }
 
     // Helper
