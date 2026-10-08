@@ -489,7 +489,7 @@
       const awardName = document.getElementById("awardName").value;
       const awardingOrg = document.getElementById("awardingOrg").value;
       const awardDate = document.getElementById("awardDate").value; 
-      const department = document.getElementById("department").value;
+      const department = document.getElementById("department").value; // ดึงค่ามาแล้ว
       const fileInput = document.getElementById("fileUpload").files[0];
       
       let level = document.querySelector('input[name="level"]:checked');
@@ -516,7 +516,7 @@
         awardees: awardees,
         level: level.value,
         category: category.value,
-        department: department.value,
+        department: department, // <--- แก้ไขจุดนี้: เอาคำว่า .value ออกครับ
         fileData: "",
         fileName: ""
       };
