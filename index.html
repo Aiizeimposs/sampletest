@@ -1,0 +1,29 @@
+<!-- ตัวอย่างไฟล์ index.html ที่จะอัปโหลดขึ้น GitHub -->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ระบบจัดเก็บเกียรติบัตร</title>
+</head>
+<body>
+    <h1>ทดสอบการดึงข้อมูล</h1>
+    <div id="result">กำลังโหลดข้อมูล...</div>
+
+    <script>
+        // นำ URL ของ Apps Script มาใส่ตรงนี้
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbyyiX7MwLz0Js3iedAXmaJrhhem1gkTN2VhcJLbF2lQfCX30ea7VUZN68YX4xjvqPvM/exec';
+
+        // ใช้ fetch เพื่อดึงข้อมูลจากหลังบ้าน
+        fetch(scriptUrl)
+            .then(response => response.json())
+            .then(data => {
+                // นำข้อมูลที่ได้มาแสดงบนหน้าเว็บ
+                document.getElementById('result').innerText = data.message;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerText = "เกิดข้อผิดพลาดในการเชื่อมต่อ";
+            });
+    </script>
+</body>
+</html>
