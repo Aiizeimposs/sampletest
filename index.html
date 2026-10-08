@@ -1,29 +1,573 @@
-<!-- ตัวอย่างไฟล์ index.html ที่จะอัปโหลดขึ้น GitHub -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <title>ระบบจัดเก็บเกียรติบัตร</title>
+  <meta charset="UTF-8">
+  <title>ระบบจัดเก็บเกียรติบัตร</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- ชุดปฏิทิน Flatpickr -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <!-- เพิ่มภาษาไทยให้ปฏิทิน -->
+  <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script> 
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <style>
+    :root {
+      --primary: #8eaefc;
+      --primary-hover: #7297f7;
+      --secondary: #fca3b7;
+      --secondary-hover: #f98b9e;
+      --accent: #c2e59c;
+      --bg: #f4f7fc;
+      --card: #ffffff;
+      --text: #4a4a4a;
+    }
+    body { font-family: 'Kanit', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
+    .container { max-width: 950px; margin: 30px auto; background: var(--card); padding: 30px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.04); }
+    h2, h3 { text-align: center; color: #5a7bb5; margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 6px; font-weight: 500; color: #555; }
+    input[type="text"], input[type="password"], select, input[type="file"] { width: 100%; padding: 11px; border: 1px solid #e1e8ed; border-radius: 10px; box-sizing: border-box; font-family: 'Kanit'; outline: none; transition: 0.2s; }
+    input[type="text"]:focus, input[type="password"]:focus, select:focus { border-color: var(--primary); }
+    .radio-group { display: flex; gap: 15px; flex-wrap: wrap; }
+    
+    .btn { background-color: var(--primary); color: #fff; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 15px; font-family: 'Kanit'; transition: 0.3s; font-weight: 500; }
+    .btn:hover { background-color: var(--primary-hover); }
+    .btn-secondary { background-color: var(--secondary); }
+    .btn-secondary:hover { background-color: var(--secondary-hover); }
+    .btn-small { padding: 6px 12px; font-size: 13px; background-color: var(--accent); color: #333; border-radius:6px; cursor: pointer; border:none; font-family: 'Kanit';}
+    .btn-download { background-color: #4b93e6; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: 'Kanit'; }
+    
+    .awardees-container { border: 1px dashed #bcd0fb; padding: 12px; border-radius: 10px; background: #fbfdff; }
+    .awardee-row { display: flex; gap: 10px; margin-bottom: 8px; }
+    .awardee-row input { flex: 1; }
+    
+    .tabs { display: flex; justify-content: center; margin-bottom: 25px; gap: 10px; flex-wrap: wrap; }
+    .tab { padding: 10px 22px; background: #eef3fc; border-radius: 10px; cursor: pointer; color: #666; font-weight: 500; transition: 0.3s; }
+    .tab.active { background: var(--primary); color: white; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; background: #fff; }
+    th, td { border: 1px solid #f0f3f8; padding: 12px 10px; text-align: left; vertical-align: middle; }
+    th { background-color: #f7f9ff; color: #5a7bb5; font-weight: 600; }
+    
+    #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.85); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; display: none; }
+    .spinner { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .hidden { display: none !important; }
+    
+    .filter-box { background: #f8fafe; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e8eeea; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+    .badge-admin { background: #ffe5ec; color: #d63384; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+    .swal-cert-img { max-width: 100%; border-radius: 8px; }
+  </style>
 </head>
 <body>
-    <h1>ทดสอบการดึงข้อมูล</h1>
-    <div id="result">กำลังโหลดข้อมูล...</div>
 
-    <script>
-        // นำ URL ของ Apps Script มาใส่ตรงนี้
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbyyiX7MwLz0Js3iedAXmaJrhhem1gkTN2VhcJLbF2lQfCX30ea7VUZN68YX4xjvqPvM/exec';
+  <div id="loader">
+    <div class="spinner"></div>
+    <h3 style="margin-top:20px; color:#5a7bb5;">ระบบกำลังประมวลผล กรุณารอสักครู่...</h3>
+  </div>
 
-        // ใช้ fetch เพื่อดึงข้อมูลจากหลังบ้าน
-        fetch(scriptUrl)
-            .then(response => response.json())
-            .then(data => {
-                // นำข้อมูลที่ได้มาแสดงบนหน้าเว็บ
-                document.getElementById('result').innerText = data.message;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('result').innerText = "เกิดข้อผิดพลาดในการเชื่อมต่อ";
-            });
-    </script>
+  <div class="container" id="loginSection">
+    <h2>เข้าสู่ระบบจัดเก็บเกียรติบัตร</h2>
+    <div class="form-group">
+      <input type="password" id="loginPassword" placeholder="กรอกรหัสผ่านของคุณครู / แอดมิน">
+    </div>
+    <button class="btn" style="width: 100%;" onclick="checkLogin()">🔑 เข้าสู่ระบบ</button>
+  </div>
+
+  <div class="container hidden" id="appSection">
+    <div class="tabs">
+      <div class="tab active" id="tabForm" onclick="switchTab('form')">📝 ฟอร์มอัพโหลด</div>
+      <div class="tab" id="tabHistory" onclick="switchTab('history')">📋 ประวัติของฉัน</div>
+      <div class="tab hidden" id="tabAdmin" onclick="switchTab('admin')">👑 จัดการข้อมูลแอดมิน</div>
+    </div>
+    
+    <div style="text-align: right; margin-bottom: 15px; font-size: 14px; color: #777;">
+      👤 ผู้ใช้งาน: <span id="displayUploaderName" style="font-weight: 600; color: #4a72c9;"></span>
+      <span id="roleBadge" class="badge-admin hidden">ADMIN</span>
+      <a href="#" onclick="logout()" style="margin-left: 12px; color: #fca3b7; text-decoration: none;">[ออกจากระบบ]</a>
+    </div>
+
+    <!-- ฟอร์มอัพโหลด -->
+    <div id="formArea">
+      <h3 id="formTitle">อัพโหลดหลักฐานรางวัล</h3>
+      <input type="hidden" id="editId">
+      <input type="hidden" id="oldFileUrl">
+      <input type="hidden" id="oldFileId">
+
+      <div class="form-group">
+        <label>ชื่อรางวัล</label>
+        <input type="text" id="awardName" placeholder="ระบุชื่อรางวัล" required>
+      </div>
+
+      <div class="form-group awardees-container">
+        <label>ผู้ได้รับรางวัล <button class="btn btn-small" onclick="addAwardee()">+ เพิ่มคน</button></label>
+        <div id="awardeesList">
+          <div class="awardee-row"><input type="text" class="awardee-input" placeholder="ชื่อ-นามสกุล"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>วันที่ได้รับรางวัล (เลือกจากปฏิทิน)</label>
+        <input type="text" id="awardDate" placeholder="เลือกวันที่" required>
+      </div>
+
+      <div class="form-group">
+        <label>ระดับของรางวัล</label>
+        <div class="radio-group">
+          <label><input type="radio" name="level" value="ระดับเขต"> ระดับเขต</label>
+          <label><input type="radio" name="level" value="ระดับจังหวัด"> ระดับจังหวัด</label>
+          <label><input type="radio" name="level" value="ระดับประเทศ"> ระดับประเทศ</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>ประเภทรางวัล</label>
+        <div class="radio-group">
+          <label><input type="radio" name="category" value="นักเรียน"> นักเรียน</label>
+          <label><input type="radio" name="category" value="ครู"> ครู</label>
+          <label><input type="radio" name="category" value="ผู้บริหาร"> ผู้บริหาร</label>
+          <label><input type="radio" name="category" value="โรงเรียน"> โรงเรียน</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>ฝ่ายงาน / กลุ่มสาระฯ</label>
+        <select id="department">
+          <option value="">-- เลือก --</option>
+          <option value="ฝ่ายวิชาการ">ฝ่ายวิชาการ</option>
+          <option value="ฝ่ายงบประมาณ">ฝ่ายงบประมาณ</option>
+          <option value="ฝ่ายบริหารงานบุคคล">ฝ่ายบริหารงานบุคคล</option>
+          <option value="ฝ่ายบริหารทั่วไป">ฝ่ายบริหารทั่วไป</option>
+          <option value="กลุ่มสาระวิชาคณิตศาสตร์">กลุ่มสาระวิชาคณิตศาสตร์</option>
+          <option value="กลุ่มสาระวิชาภาษาไทย">กลุ่มสาระวิชาภาษาไทย</option>
+          <option value="กลุ่มสาระวิชาวิทยาศาสตร์ฯ">กลุ่มสาระวิชาวิทยาศาสตร์ฯ</option>
+          <option value="กลุ่มสาระวิชาสังคมศึกษาฯ">กลุ่มสาระวิชาสังคมศึกษาฯ</option>
+          <option value="กลุ่มสาระวิชาภาษาต่างประเทศ">กลุ่มสาระวิชาภาษาต่างประเทศ</option>
+          <option value="กลุ่มสาระวิชาศิลปะ">กลุ่มสาระวิชาศิลปะ</option>
+          <option value="กลุ่มสาระวิชาสุขศึกษาฯ">กลุ่มสาระวิชาสุขศึกษาฯ</option>
+          <option value="กลุ่มสาระวิชาการงานฯ">กลุ่มสาระวิชาการงานฯ</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>อัพโหลดหลักฐาน (PDF หรือ รูปภาพ)</label>
+        <input type="file" id="fileUpload" accept=".pdf, image/*">
+      </div>
+
+      <button class="btn" style="width: 100%; margin-top: 10px;" onclick="submitForm()">💾 บันทึกข้อมูล</button>
+      <button class="btn btn-secondary hidden" id="cancelEditBtn" style="width: 100%; margin-top: 10px;" onclick="resetForm()">❌ ยกเลิกการแก้ไข</button>
+    </div>
+
+    <!-- ประวัติของฉัน -->
+    <div id="historyArea" class="hidden">
+      <h3>ประวัติการอัพโหลดของคุณ</h3>
+      <div class="filter-box">
+        <div style="flex:1; min-width: 130px;">
+          <label>จากวันที่</label>
+          <input type="text" id="historyStartDate" placeholder="เลือกวันที่เริ่มต้น">
+        </div>
+        <div style="flex:1; min-width: 130px;">
+          <label>ถึงวันที่</label>
+          <input type="text" id="historyEndDate" placeholder="เลือกวันที่สิ้นสุด">
+        </div>
+        <button class="btn" onclick="loadHistory()">🔍 ค้นหา</button>
+        <button class="btn btn-secondary" onclick="clearHistoryFilter()">🔄 รีเซ็ต</button>
+        <button class="btn-download" onclick="generateUserReport()">📘 ดาวน์โหลดแบบรายงาน</button>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 110px;">
+                <input type="checkbox" id="selectAllHistory" onclick="toggleSelectAll()"> เลือกลำดับ
+              </th>
+              <th>ชื่อรางวัล</th>
+              <th>รูปเกียรติบัตร</th>
+              <th>วันที่ได้รับ</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- แอดมินจัดการข้อมูลทั้งหมด -->
+    <div id="adminArea" class="hidden">
+      <h3>👑 จัดการข้อมูลผลงานและเกียรติบัตรทั้งหมด</h3>
+      <div class="filter-box">
+        <div style="flex:1; min-width: 150px;">
+          <label>จากวันที่</label>
+          <input type="text" id="adminStartDate" placeholder="เลือกวันที่เริ่มต้น">
+        </div>
+        <div style="flex:1; min-width: 150px;">
+          <label>ถึงวันที่</label>
+          <input type="text" id="adminEndDate" placeholder="เลือกวันที่สิ้นสุด">
+        </div>
+        <button class="btn" onclick="loadAdminData()">🔍 ค้นหา</button>
+        <button class="btn btn-secondary" onclick="clearAdminFilter()">🔄 รีเซ็ต</button>
+      </div>
+      <div style="margin-bottom: 15px; display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="btn" style="background:#72d5a3;" onclick="downloadAdminReport('pdf')">📄 โหลดรายงานรวม PDF</button>
+        <button class="btn btn-download" onclick="downloadAdminReport('docx')">📘 โหลดรายงานรวม DOCX</button>
+      </div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>ชื่อผู้ได้รับรางวัล</th>
+              <th>วันที่ได้รับ</th>
+              <th>ระดับรางวัล</th>
+              <th>ชื่อรางวัล/ผู้อัพโหลด</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // ตัวแปรสำคัญ (แก้ไข URL ตรงนี้)
+    // ==========================================
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyiX7MwLz0Js3iedAXmaJrhhem1gkTN2VhcJLbF2lQfCX30ea7VUZN68YX4xjvqPvM/exec';
+    
+    let currentUploader = "";
+    let currentUserRole = "user";
+    let myHistoryData = [];
+
+    // ฟังก์ชันตัวกลางสำหรับส่งข้อมูลไปหา Google Apps Script
+    function callBackend(data, onSuccess, onError) {
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(data),
+        redirect: 'follow'
+      })
+      .then(response => response.json())
+      .then(resData => { if (onSuccess) onSuccess(resData); })
+      .catch(err => {
+        console.error(err);
+        if (onError) onError(err);
+      });
+    }
+
+    // ==========================================
+    // ส่วนตั้งค่าปฏิทิน (เหมือนเดิม)
+    // ==========================================
+    function convertYearToBE(instance) {
+      if (instance.currentYearElement) {
+        instance.currentYearElement.value = instance.currentYear + 543;
+        instance.currentYearElement.setAttribute('readonly', 'readonly'); 
+      }
+    }
+    const fpConfig = { 
+      locale: "th", dateFormat: "Y-m-d", altInput: true, 
+      onChange: (sd, ds, inst) => formatFlatpickrThai(sd, inst),
+      onReady: (sd, ds, inst) => convertYearToBE(inst),
+      onMonthChange: (sd, ds, inst) => convertYearToBE(inst),
+      onYearChange: (sd, ds, inst) => convertYearToBE(inst)
+    };
+    const fpAwardDate = flatpickr("#awardDate", fpConfig);
+    const fpHistoryStart = flatpickr("#historyStartDate", fpConfig);
+    const fpHistoryEnd = flatpickr("#historyEndDate", fpConfig);
+    const fpAdminStart = flatpickr("#adminStartDate", fpConfig);
+    const fpAdminEnd = flatpickr("#adminEndDate", fpConfig);
+
+    function formatFlatpickrThai(selectedDates, instance) {
+      if(selectedDates.length > 0) {
+        const d = selectedDates[0];
+        const thaiMonths = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+        instance.altInput.value = `${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
+      }
+    }
+
+    // ----------------- เข้าสู่ระบบ -----------------
+    function checkLogin() {
+      const pwd = document.getElementById("loginPassword").value;
+      if(!pwd) return Swal.fire("แจ้งเตือน", "กรุณากรอกรหัสผ่าน", "warning");
+      
+      showLoader();
+      callBackend({ action: 'verifyPassword', password: pwd }, 
+        function(res) {
+          hideLoader();
+          if(res.success) {
+            currentUploader = res.name;
+            currentUserRole = res.role;
+            document.getElementById("displayUploaderName").innerText = currentUploader;
+            if(currentUserRole === 'admin') {
+              document.getElementById("roleBadge").classList.remove("hidden");
+              document.getElementById("tabAdmin").classList.remove("hidden");
+            } else {
+              document.getElementById("roleBadge").classList.add("hidden");
+              document.getElementById("tabAdmin").classList.add("hidden");
+            }
+            document.getElementById("loginSection").classList.add("hidden");
+            document.getElementById("appSection").classList.remove("hidden");
+          } else {
+            Swal.fire("ผิดพลาด", "รหัสผ่านไม่ถูกต้อง หรือไม่มีในระบบ", "error");
+          }
+        },
+        function(err) {
+          hideLoader();
+          Swal.fire("ผิดพลาด", "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", "error");
+        }
+      );
+    }
+    
+    function logout() {
+      currentUploader = ""; currentUserRole = "user";
+      document.getElementById("loginPassword").value = "";
+      document.getElementById("appSection").classList.add("hidden");
+      document.getElementById("loginSection").classList.remove("hidden");
+      resetForm();
+    }
+
+    function addAwardee() {
+      const div = document.createElement("div");
+      div.className = "awardee-row";
+      div.innerHTML = `<input type="text" class="awardee-input" placeholder="ชื่อ-นามสกุล"> 
+                       <button class="btn btn-secondary btn-small" onclick="this.parentElement.remove()">- ลบ</button>`;
+      document.getElementById("awardeesList").appendChild(div);
+    }
+
+    function switchTab(tab) {
+      document.getElementById("tabForm").classList.remove("active");
+      document.getElementById("tabHistory").classList.remove("active");
+      document.getElementById("tabAdmin").classList.remove("active");
+      document.getElementById("formArea").classList.add("hidden");
+      document.getElementById("historyArea").classList.add("hidden");
+      document.getElementById("adminArea").classList.add("hidden");
+
+      if(tab === 'form') {
+        document.getElementById("tabForm").classList.add("active");
+        document.getElementById("formArea").classList.remove("hidden");
+      } else if(tab === 'history') {
+        document.getElementById("tabHistory").classList.add("active");
+        document.getElementById("historyArea").classList.remove("hidden");
+        loadHistory();
+      } else if(tab === 'admin') {
+        document.getElementById("tabAdmin").classList.add("active");
+        document.getElementById("adminArea").classList.remove("hidden");
+        loadAdminData();
+      }
+    }
+
+    // ----------------- โหลดประวัติ -----------------
+    function loadHistory() {
+      const sd = document.getElementById("historyStartDate").value;
+      const ed = document.getElementById("historyEndDate").value;
+      showLoader();
+      callBackend({ action: 'getHistory', uploader: currentUploader, sd: sd, ed: ed }, 
+        function(res) {
+          myHistoryData = res; 
+          renderHistoryTable();
+          hideLoader();
+        }
+      );
+    }
+
+    function clearHistoryFilter() { fpHistoryStart.clear(); fpHistoryEnd.clear(); loadHistory(); }
+
+    function renderHistoryTable() {
+      const tbody = document.getElementById("historyTableBody");
+      tbody.innerHTML = "";
+      document.getElementById("selectAllHistory").checked = false;
+
+      if(myHistoryData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">ไม่พบประวัติการอัพโหลด</td></tr>`;
+        return;
+      }
+      
+      myHistoryData.forEach((item, index) => {
+        let displayDate = formatCEToThai(item.dateCE);
+        let viewBtn = item.fileId ? `<span style="color:#007BFF; cursor:pointer; text-decoration:underline;" onclick="viewCertificate('${item.fileId}', '${item.fileUrl}')">คลิกดู</span>` : "ไม่มีไฟล์";
+        let editBtn = `<br><button class="btn btn-small" style="margin-top:5px; background-color:#ffd8a8;" onclick="editDataByIndex(${index})">✏️ แก้ไข</button>`;
+
+        tbody.innerHTML += `<tr>
+          <td><input type="checkbox" class="chk-report" value="${item.id}"> ${index + 1}</td>
+          <td>${item.awardName} ${editBtn}</td>
+          <td>${viewBtn}</td>
+          <td>${displayDate}</td>
+        </tr>`;
+      });
+    }
+
+    function toggleSelectAll() {
+      const isChecked = document.getElementById("selectAllHistory").checked;
+      document.querySelectorAll(".chk-report").forEach(chk => chk.checked = isChecked);
+    }
+
+    function viewCertificate(fileId, fileUrl) {
+      let thumbUrl = "https://drive.google.com/thumbnail?id=" + fileId + "&sz=w1000";
+      Swal.fire({
+        title: 'รูปเกียรติบัตร', imageUrl: thumbUrl, imageAlt: 'Certificate',
+        showCancelButton: true, confirmButtonText: '📥 ดาวน์โหลด', cancelButtonText: 'ปิด',
+        customClass: { image: 'swal-cert-img' }
+      }).then((result) => {
+        if(result.isConfirmed) window.open(fileUrl, '_blank');
+      });
+    }
+
+    function generateUserReport() {
+      let selectedIds = [];
+      document.querySelectorAll(".chk-report:checked").forEach(chk => selectedIds.push(chk.value));
+      if(selectedIds.length === 0) return Swal.fire("แจ้งเตือน", "กรุณาเลือกลำดับก่อนครับ", "warning");
+
+      showLoader();
+      callBackend({ action: 'generateUserReportDocx', selectedIds: selectedIds }, 
+        function(res) {
+          hideLoader();
+          if(res.success) {
+            Swal.fire({
+              title: "สำเร็จ!", text: "สร้างแบบรายงานเรียบร้อยแล้ว", icon: "success", confirmButtonText: "📥 ดาวน์โหลด"
+            }).then((r) => { if(r.isConfirmed) window.open(res.url, '_blank'); });
+          }
+        }
+      );
+    }
+
+    function editDataByIndex(index) {
+      let item = myHistoryData[index];
+      switchTab('form');
+      document.getElementById("formTitle").innerText = "แก้ไขข้อมูล";
+      document.getElementById("editId").value = item.id;
+      document.getElementById("oldFileUrl").value = item.fileUrl;
+      document.getElementById("oldFileId").value = item.fileId;
+      document.getElementById("cancelEditBtn").classList.remove("hidden");
+      document.getElementById("awardName").value = item.awardName;
+      fpAwardDate.setDate(item.dateCE);
+      document.getElementById("department").value = item.department;
+      
+      document.querySelectorAll(`input[name="level"]`).forEach(r => { if(r.value === item.level) r.checked = true; });
+      document.querySelectorAll(`input[name="category"]`).forEach(r => { if(r.value === item.category) r.checked = true; });
+
+      const awdContainer = document.getElementById("awardeesList");
+      awdContainer.innerHTML = "";
+      item.awardees.split(", ").forEach(n => {
+        const div = document.createElement("div");
+        div.className = "awardee-row";
+        div.innerHTML = `<input type="text" class="awardee-input" value="${n}"> 
+                         <button class="btn btn-secondary btn-small" onclick="this.parentElement.remove()">- ลบ</button>`;
+        awdContainer.appendChild(div);
+      });
+    }
+
+    function resetForm() {
+      document.getElementById("editId").value = "";
+      document.getElementById("oldFileUrl").value = ""; document.getElementById("oldFileId").value = "";
+      document.getElementById("awardName").value = "";
+      fpAwardDate.clear(); document.getElementById("department").value = "";
+      document.querySelectorAll(`input[type="radio"]`).forEach(r => r.checked = false);
+      document.getElementById("awardeesList").innerHTML = `<div class="awardee-row"><input type="text" class="awardee-input" placeholder="ชื่อ-นามสกุล"></div>`;
+      document.getElementById("fileUpload").value = "";
+      document.getElementById("formTitle").innerText = "อัพโหลดหลักฐานรางวัล";
+      document.getElementById("cancelEditBtn").classList.add("hidden");
+    }
+
+    // ----------------- บันทึกข้อมูล -----------------
+    function submitForm() {
+      const formData = {
+        uploaderName: currentUploader, editId: document.getElementById("editId").value,
+        oldFileUrl: document.getElementById("oldFileUrl").value, oldFileId: document.getElementById("oldFileId").value,
+        awardName: document.getElementById("awardName").value, awardDate: document.getElementById("awardDate").value, 
+        level: document.querySelector('input[name="level"]:checked')?.value,
+        category: document.querySelector('input[name="category"]:checked')?.value,
+        department: document.getElementById("department").value,
+        fileData: "", fileName: ""
+      };
+
+      if(!formData.awardName || !formData.awardDate || !formData.level || !formData.category || !formData.department) {
+        return Swal.fire("แจ้งเตือน", "กรุณากรอกข้อมูลให้ครบถ้วน", "warning");
+      }
+
+      let awardees = [];
+      document.querySelectorAll('.awardee-input').forEach(input => {
+        if(input.value.trim() !== "") awardees.push(input.value.trim());
+      });
+      if(awardees.length === 0) return Swal.fire("แจ้งเตือน", "กรุณาระบุชื่ออย่างน้อย 1 คน", "warning");
+      formData.awardees = awardees;
+
+      const fileInput = document.getElementById("fileUpload").files[0];
+      if(fileInput) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          formData.fileData = e.target.result;
+          formData.fileName = fileInput.name;
+          sendToServer(formData);
+        };
+        reader.readAsDataURL(fileInput);
+      } else {
+        sendToServer(formData);
+      }
+    }
+
+    function sendToServer(formData) {
+      showLoader();
+      callBackend({ action: 'saveData', formData: formData }, 
+        function(res) {
+          hideLoader();
+          Swal.fire("สำเร็จ", res.message, "success").then(() => { resetForm(); switchTab('history'); });
+        }
+      );
+    }
+
+    // ----------------- แอดมิน -----------------
+    function loadAdminData() {
+      const sd = document.getElementById("adminStartDate").value;
+      const ed = document.getElementById("adminEndDate").value;
+      showLoader();
+      callBackend({ action: 'getAllDataAdmin', startDate: sd, endDate: ed }, 
+        function(res) {
+          hideLoader();
+          const tbody = document.getElementById("adminTableBody");
+          tbody.innerHTML = "";
+          if(res.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">ไม่พบข้อมูล</td></tr>`; return;
+          }
+          res.forEach(item => {
+            let displayDate = formatCEToThai(item.dateCE);
+            tbody.innerHTML += `<tr>
+              <td><strong>${item.awardees}</strong></td><td>${displayDate}</td>
+              <td><span style="background:#eef3fc; padding:3px 8px; border-radius:5px;">${item.level}</span></td>
+              <td>${item.awardName}<br><small style="color:gray;">ผู้อัพโหลด: ${item.uploader}</small></td>
+            </tr>`;
+          });
+        }
+      );
+    }
+
+    function clearAdminFilter() { fpAdminStart.clear(); fpAdminEnd.clear(); loadAdminData(); }
+
+    function downloadAdminReport(type) {
+      const sd = document.getElementById("adminStartDate").value;
+      const ed = document.getElementById("adminEndDate").value;
+      showLoader();
+      callBackend({ action: 'exportReport', startDate: sd, endDate: ed, type: type }, 
+        function(res) {
+          hideLoader();
+          if(res.success) {
+            Swal.fire({ title: "สำเร็จ!", text: "คลิกเพื่อดาวน์โหลด", icon: "success", confirmButtonText: "📥 ดาวน์โหลด" })
+            .then((r) => { if(r.isConfirmed) window.open(res.url, '_blank'); });
+          }
+        }
+      );
+    }
+
+    function formatCEToThai(dStr) {
+      if(!dStr) return "-";
+      if(dStr.includes("-")) {
+        let pts = dStr.split("-");
+        return `${pts[2]}/${pts[1]}/${parseInt(pts[0]) + 543}`;
+      }
+      return dStr;
+    }
+    
+    function showLoader() { document.getElementById("loader").style.display = "flex"; }
+    function hideLoader() { document.getElementById("loader").style.display = "none"; }
+  </script>
 </body>
 </html>
