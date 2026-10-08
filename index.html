@@ -147,9 +147,11 @@
         </select>
       </div>
 
-      <div class="form-group">
+     <div class="form-group">
         <label>อัพโหลดหลักฐาน (PDF หรือ รูปภาพ)</label>
         <input type="file" id="fileUpload" accept=".pdf, image/*">
+        <!-- เพิ่มกล่องแสดงสถานะไฟล์ตรงนี้ -->
+        <div id="filePreviewContainer" class="file-preview hidden" style="margin-top: 10px;"></div>
       </div>
 
       <button class="btn" style="width: 100%; margin-top: 10px;" onclick="submitForm()">💾 บันทึกข้อมูล</button>
@@ -467,6 +469,18 @@
                          <button class="btn btn-secondary btn-small" onclick="this.parentElement.remove()">- ลบ</button>`;
         awdContainer.appendChild(div);
       });
+
+      // --- ส่วนที่เพิ่มใหม่: ตรวจสอบและแสดงข้อความไฟล์ ---
+      const preview = document.getElementById("filePreviewContainer");
+      if (item.fileUrl) {
+        preview.classList.remove("hidden");
+        preview.innerHTML = `<span style="color: #28a745; font-weight: 500;">✅ เคยมีการอัพโหลดไฟล์แล้ว </span>
+                             <a href="${item.fileUrl}" target="_blank" style="font-size: 14px; text-decoration: none;">(คลิกดูไฟล์เดิม)</a>
+                             <br><small style="color: #d63384;">*หากเลือกไฟล์ใหม่ จะเป็นการบันทึกทับไฟล์เดิม</small>`;
+      } else {
+        preview.classList.remove("hidden");
+        preview.innerHTML = `<span style="color: #ff9800; font-weight: 500;">⚠️ ยังไม่มีการอัพโหลดไฟล์</span>`;
+      }
     }
 
     function resetForm() {
@@ -480,6 +494,11 @@
       document.querySelectorAll(`input[type="radio"]`).forEach(r => r.checked = false);
       document.getElementById("awardeesList").innerHTML = `<div class="awardee-row"><input type="text" class="awardee-input" placeholder="ชื่อ-นามสกุล"></div>`;
       document.getElementById("fileUpload").value = "";
+      
+      // ซ่อนข้อความสถานะไฟล์เมื่อล้างฟอร์ม
+      document.getElementById("filePreviewContainer").classList.add("hidden");
+      document.getElementById("filePreviewContainer").innerHTML = "";
+      
       document.getElementById("formTitle").innerText = "อัพโหลดหลักฐานรางวัล";
       document.getElementById("cancelEditBtn").classList.add("hidden");
     }
